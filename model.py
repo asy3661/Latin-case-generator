@@ -5,6 +5,7 @@ import torch.nn as nn
 import string
 import random
 import unidecode
+from collections import defaultdict
 
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -15,6 +16,8 @@ n_characters = len(all_characters)
 # file = unidecode.unidecode(open("data/names.txt").read())
 file = unidecode.unidecode(open("data/data.txt").read())
 
+def default_value():
+    return 0
 
 class RNN(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, output_size):
@@ -122,6 +125,14 @@ class Generator:
                 return predicted
 
         return predicted
+
+    def estimate_prob_dist(self, initial_string, n=1000, temperature=0.85):
+        samples = defaultdict(default_value)
+        for _ in range(n):
+            sample = self.complete_string(initial_string,
+                    temperature=temperature)
+            samples[sample] += 1
+        return samples
 
     def random_prediction(self, temperature=0.85):
         possible_preps = ['a', 'ab', 'abante', 'ad', 'apud', 'con', 'contra', 'coram',
