@@ -1,11 +1,11 @@
-# Most code from https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Projects/text_generation_babynames/generating_names.py
+# Much of the code from is https://github.com/aladdinpersson/Machine-Learning-Collection/blob/master/ML/Projects/text_generation_babynames/generating_names.py
 
 import torch
 import torch.nn as nn
 import string
 import random
 import unidecode
-from collections import defaultdict
+from collections import Counter
 
 # Device configuration
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -13,11 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 all_characters = string.ascii_lowercase + ' \n'
 n_characters = len(all_characters)
 
-# file = unidecode.unidecode(open("data/names.txt").read())
 file = unidecode.unidecode(open("data/data.txt").read())
-
-def default_value():
-    return 0
 
 class RNN(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, output_size):
@@ -127,7 +123,7 @@ class Generator:
         return predicted
 
     def estimate_prob_dist(self, initial_string, n=1000, temperature=0.85):
-        samples = defaultdict(default_value)
+        samples = Counter()
         for _ in range(n):
             sample = self.complete_string(initial_string,
                     temperature=temperature)
@@ -144,12 +140,10 @@ class Generator:
 
         return self.complete_string(prep, temperature=temperature)
 
-    # input_size, hidden_size, num_layers, output_size
     def train(self):
 
         optimizer = torch.optim.Adam(self.rnn.parameters(), lr=self.lr)
         criterion = nn.CrossEntropyLoss()
-        # writer = SummaryWriter(f"runs/names0")  # for tensorboard
 
         print("=> Starting training")
 
@@ -183,17 +177,3 @@ if __name__ == '__main__':
     gennames = Generator()
     gennames.train()
 
-# print('')
-# print(gennames.generate('in insul'))
-# print('')
-# print(gennames.generate('ab insul'))
-# print('')
-# print(gennames.generate('de insul'))
-# print('')
-# print(gennames.generate('in memori'))
-# print('')
-# print(gennames.generate('a memori'))
-# print('')
-# print(gennames.generate('de memori'))
-# print('')
-# print(gennames.complete_string('de memori'))
